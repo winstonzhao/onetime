@@ -2,7 +2,7 @@
   "name": "otp_manager",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "type": "commonjs",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -14,11 +14,15 @@
     "electron:preview": "electron ."
   },
   "dependencies": {
+    "@electron/remote": "^2.1.2",
+    "@types/uuid": "^10.0.0",
     "html5-qrcode": "^2.3.8",
+    "protobufjs": "^7.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.4.0",
-    "react-router-dom": "^7.1.1"
+    "react-router-dom": "^7.1.1",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -46,20 +50,13 @@
     },
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "dist-electron/**/*"
     ],
-    "mac": {
-      "category": "public.app-category.utilities"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "category": "Utility"
-    },
-    "win": {
-      "target": "nsis"
-    }
+    "extraResources": [
+      {
+        "from": "electron/preload.js",
+        "to": "preload.js"
+      }
+    ]
   }
 }

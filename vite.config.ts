@@ -7,8 +7,21 @@ import path from 'path'
 export default defineConfig({
   plugins: [
     react(),
-    electron({
-      entry: path.resolve(__dirname, 'electron/main.ts'),
-    }),
+    electron([
+      {
+        entry: path.resolve(__dirname, 'electron/main.ts'),
+      },
+      {
+        entry: path.resolve(__dirname, 'electron/preload.ts'),
+        onstart(options) {
+          options.reload()
+        },
+      },
+    ]),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
 })

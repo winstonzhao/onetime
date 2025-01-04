@@ -115,66 +115,8 @@ body {
   font-size: 1.2rem;
 }
 
-/* Scanner styles */
-.scanner-container {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-}
 
-#qr-reader {
-  width: 100% !important;
-  border: none !important;
-  box-shadow: none !important;
-  background: var(--background-secondary) !important;
-  border-radius: 8px;
-  overflow: hidden;
-}
 
-#qr-reader__camera_selection {
-  width: 100% !important;
-  max-width: 300px !important;
-  margin: 1rem auto !important;
-  background: var(--background-tertiary) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 4px !important;
-  padding: 0.5rem !important;
-}
-
-#qr-reader__dashboard_section_csr {
-  background: var(--background-secondary) !important;
-  padding: 1rem !important;
-}
-
-#qr-reader__dashboard_section_csr button {
-  background: var(--accent-blue) !important;
-  color: var(--text-primary) !important;
-  border: none !important;
-  border-radius: 4px !important;
-  padding: 0.5rem 1rem !important;
-  cursor: pointer !important;
-}
-
-#qr-reader__scan_region {
-  background: black !important;
-  min-height: 300px !important;
-}
-
-video {
-  max-width: 100% !important;
-  height: auto !important;
-}
-
-/* Hide unnecessary elements */
-#qr-reader__status_span,
-#qr-reader__header_message,
-#qr-reader-results,
-#html5-qrcode-button-camera-stop,
-#html5-qrcode-button-camera-start,
-#qr-reader__filescan_section {
-  display: none !important;
-}
 
 /* Success/Error messages */
 .success-message,
@@ -192,6 +134,95 @@ video {
 }
 
 .error-message {
+  background-color: var(--error-color);
+  color: white;
+}
+
+/* Settings styles */
+.settings-card {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.settings-section {
+  margin: 2rem 0;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.setting-item:hover {
+  background-color: var(--background-tertiary);
+}
+
+.setting-item label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+.setting-item input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+.setting-item input[type="number"] {
+  width: 100px;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--background-tertiary);
+  color: var(--text-primary);
+}
+
+.setting-item select {
+  width: 200px;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--background-tertiary);
+  color: var(--text-primary);
+}
+
+.backup-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.message {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.message.success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.message.error {
   background-color: var(--error-color);
   color: white;
 }
