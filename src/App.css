@@ -21,6 +21,12 @@
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
+
+  /* Brand styles */
+  --brand-gradient: linear-gradient(90deg, #646cff, #535bf2);
+  --brand-shadow: 0 4px 12px rgba(100, 108, 255, 0.2);
+  --font-display: 'Inter', sans-serif;
+  --font-primary: 'Inter', sans-serif;
 }
 
 /* Dark mode styles */
@@ -41,20 +47,56 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%;
+  transition: all 0.3s ease;
+}
+
+.nav-menu.scrolled {
+  background-color: rgba(42, 43, 46, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom-color: rgba(56, 56, 56, 0.5);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .nav-brand {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
 }
 
-.nav-brand h1 {
-  color: var(--dark-text-primary);
+.brand-icon {
+  font-size: 1.75rem;
+  color: var(--dark-accent);
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-text {
+  font-family: var(--font-display);
+  font-weight: 700;
   font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
+  letter-spacing: -0.02em;
+  color: var(--dark-text-primary);
+  display: flex;
+  gap: 0.125rem;
+  align-items: center;
+}
+
+.brand-text span {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-one {
+  opacity: 0.95;
+}
+
+.brand-time {
+  opacity: 0.85;
 }
 
 .nav-items {
@@ -70,9 +112,10 @@
   padding: 0.5rem 1rem;
   color: var(--dark-text-secondary);
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: all 0.2s ease;
   font-weight: 500;
+  position: relative;
 }
 
 .nav-item:hover {
@@ -82,7 +125,8 @@
 
 .nav-item.active {
   color: var(--dark-text-primary);
-  background-color: var(--dark-accent);
+  background: var(--brand-gradient);
+  box-shadow: var(--brand-shadow);
 }
 
 .nav-icon {
@@ -133,22 +177,23 @@
 
 /* Button styles */
 .button {
-  background-color: var(--dark-accent);
+  background: var(--brand-gradient);
   color: var(--dark-text-primary);
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  box-shadow: var(--brand-shadow);
 }
 
 .button:hover {
-  background-color: var(--dark-accent-hover);
   transform: translateY(-1px);
+  box-shadow: 0 8px 20px -6px rgba(100, 108, 255, 0.3);
 }
 
 .button:active {
@@ -170,30 +215,33 @@
 
 .form-input {
   width: 100%;
-  padding: 0.5rem;
-  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
   border: 1px solid var(--dark-border);
   background-color: var(--dark-surface);
   color: var(--dark-text-primary);
   transition: all 0.2s ease;
+  font-family: var(--font-primary);
 }
 
 .form-input:focus {
   outline: none;
   border-color: var(--dark-accent);
-  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.15);
 }
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
   color: var(--dark-text-primary);
   margin-bottom: 1rem;
   width: 100%;
+  letter-spacing: -0.02em;
 }
 
-h1 { font-size: 2rem; font-weight: 700; }
-h2 { font-size: 1.75rem; font-weight: 600; }
-h3 { font-size: 1.5rem; font-weight: 600; }
+h1 { font-size: 2.5rem; font-weight: 700; }
+h2 { font-size: 2rem; font-weight: 600; }
+h3 { font-size: 1.75rem; font-weight: 600; }
 
 p {
   color: var(--dark-text-secondary);
@@ -233,7 +281,7 @@ p {
     padding: 0.5rem 1rem;
   }
 
-  .nav-brand h1 {
+  .brand-text {
     font-size: 1.25rem;
   }
 
