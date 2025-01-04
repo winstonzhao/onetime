@@ -1,0 +1,34 @@
+:root {
+  /* Colors */
+  --background-primary: #0a0b0d;
+  --background-secondary: #13151a;
+  --background-tertiary: #1c1f26;
+  --accent-blue: #2d7cdb;
+  --accent-blue-hover: #3889e9;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a7b7;
+  --border-color: #2a2d36;
+
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+}
