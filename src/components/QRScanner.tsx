@@ -10,65 +10,75 @@ const QRScanner = ({ onScanSuccess, onScanError }: QRScannerProps) => {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
-    // Clean up any existing scanner instance first
-    if (scannerRef.current) {
-      scannerRef.current.clear()
-        .then(() => {
-          scannerRef.current = null;
-          initializeScanner();
-        })
-        .catch((error) => console.error('Failed to clear scanner', error));
-      return;
-    }
+    let mounted = true;
 
-    initializeScanner();
+    const cleanup = async () => {
+      if (scannerRef.current) {
+        try {
+          await scannerRef.current.clear();
+          // Remove the old HTML elements
+          const oldElement = document.getElementById('qr-reader');
+          if (oldElement) {
+            oldElement.innerHTML = '';
+          }
+          scannerRef.current = null;
+        } catch (error) {
+          console.error('Failed to clear scanner', error);
+        }
+      }
+    };
+
+    const setup = async () => {
+      await cleanup();
+      
+      if (!mounted) return;
+
+      // Create scanner instance
+      scannerRef.current = new Html5QrcodeScanner(
+        'qr-reader',
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0,
+          showTorchButtonIfSupported: true,
+          showZoomSliderIfSupported: true,
+        },
+        false
+      );
+
+      // Start scanning
+      scannerRef.current.render(
+        (decodedText) => {
+          if (mounted) {
+            onScanSuccess(decodedText);
+          }
+        },
+        (errorMessage) => {
+          if (!mounted) return;
+          
+          // Ignore "QR code not found" type errors to allow continuous scanning
+          if (!errorMessage.includes('NotFoundException') && 
+              !errorMessage.includes('No MultiFormat Readers')) {
+            // Only trigger error callback for camera or permission issues
+            if (errorMessage.includes('Camera access') || 
+                errorMessage.includes('permission') || 
+                errorMessage.includes('NotAllowed') ||
+                errorMessage.includes('NotSupported')) {
+              onScanError(errorMessage);
+            }
+          }
+        }
+      );
+    };
+
+    setup();
 
     // Cleanup function
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear()
-          .then(() => {
-            scannerRef.current = null;
-          })
-          .catch((error) => console.error('Failed to clear scanner', error));
-      }
+      mounted = false;
+      cleanup();
     };
   }, [onScanSuccess, onScanError]);
-
-  const initializeScanner = () => {
-    // Create scanner instance
-    scannerRef.current = new Html5QrcodeScanner(
-      'qr-reader',
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0,
-        showTorchButtonIfSupported: true,
-        showZoomSliderIfSupported: true,
-      },
-      false
-    );
-
-    // Start scanning
-    scannerRef.current.render(
-      (decodedText) => {
-        onScanSuccess(decodedText);
-      },
-      (errorMessage) => {
-        // Ignore "QR code not found" type errors to allow continuous scanning
-        if (!errorMessage.includes('NotFoundException') && 
-            !errorMessage.includes('No MultiFormat Readers')) {
-          // Only trigger error callback for camera or permission issues
-          if (errorMessage.includes('Camera access') || 
-              errorMessage.includes('permission') || 
-              errorMessage.includes('NotAllowed') ||
-              errorMessage.includes('NotSupported')) {
-            onScanError(errorMessage);
-          }
-        }
-      }
-    );
-  };
 
   return <div id="qr-reader" className="qr-scanner" />;
 };
