@@ -10,6 +10,32 @@ const QRScanner = ({ onScanSuccess, onScanError }: QRScannerProps) => {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
+    // Clean up any existing scanner instance first
+    if (scannerRef.current) {
+      scannerRef.current.clear()
+        .then(() => {
+          scannerRef.current = null;
+          initializeScanner();
+        })
+        .catch((error) => console.error('Failed to clear scanner', error));
+      return;
+    }
+
+    initializeScanner();
+
+    // Cleanup function
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear()
+          .then(() => {
+            scannerRef.current = null;
+          })
+          .catch((error) => console.error('Failed to clear scanner', error));
+      }
+    };
+  }, [onScanSuccess, onScanError]);
+
+  const initializeScanner = () => {
     // Create scanner instance
     scannerRef.current = new Html5QrcodeScanner(
       'qr-reader',
@@ -29,19 +55,20 @@ const QRScanner = ({ onScanSuccess, onScanError }: QRScannerProps) => {
         onScanSuccess(decodedText);
       },
       (errorMessage) => {
-        onScanError(errorMessage);
+        // Ignore "QR code not found" type errors to allow continuous scanning
+        if (!errorMessage.includes('NotFoundException') && 
+            !errorMessage.includes('No MultiFormat Readers')) {
+          // Only trigger error callback for camera or permission issues
+          if (errorMessage.includes('Camera access') || 
+              errorMessage.includes('permission') || 
+              errorMessage.includes('NotAllowed') ||
+              errorMessage.includes('NotSupported')) {
+            onScanError(errorMessage);
+          }
+        }
       }
     );
-
-    // Cleanup
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current
-          .clear()
-          .catch((error) => console.error('Failed to clear scanner', error));
-      }
-    };
-  }, [onScanSuccess, onScanError]);
+  };
 
   return <div id="qr-reader" className="qr-scanner" />;
 };
