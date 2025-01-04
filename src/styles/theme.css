@@ -85,3 +85,113 @@ body {
 .button:hover {
   background-color: var(--accent-blue-hover);
 }
+
+/* Import page styles */
+.import-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.import-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.import-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+}
+
+.import-button svg {
+  font-size: 1.2rem;
+}
+
+/* Scanner styles */
+.scanner-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#qr-reader {
+  width: 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: var(--background-secondary) !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#qr-reader__camera_selection {
+  width: 100% !important;
+  max-width: 300px !important;
+  margin: 1rem auto !important;
+  background: var(--background-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 4px !important;
+  padding: 0.5rem !important;
+}
+
+#qr-reader__dashboard_section_csr {
+  background: var(--background-secondary) !important;
+  padding: 1rem !important;
+}
+
+#qr-reader__dashboard_section_csr button {
+  background: var(--accent-blue) !important;
+  color: var(--text-primary) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 0.5rem 1rem !important;
+  cursor: pointer !important;
+}
+
+#qr-reader__scan_region {
+  background: black !important;
+  min-height: 300px !important;
+}
+
+video {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Hide unnecessary elements */
+#qr-reader__status_span,
+#qr-reader__header_message,
+#qr-reader-results,
+#html5-qrcode-button-camera-stop,
+#html5-qrcode-button-camera-start,
+#qr-reader__filescan_section {
+  display: none !important;
+}
+
+/* Success/Error messages */
+.success-message,
+.error-message {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 4px;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.success-message {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.error-message {
+  background-color: var(--error-color);
+  color: white;
+}
