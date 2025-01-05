@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .windsurfrules
+
+electron-dist
+release
