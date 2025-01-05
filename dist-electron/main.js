@@ -101,6 +101,7 @@ ipcMain.handle("storage:import", async (_, filePath) => {
   }
 });
 ipcMain.handle("clipboard:copy", (_, text) => {
+  console.log("Main process: copying to clipboard:", text);
   clipboard.writeText(text);
 });
 ipcMain.handle("window:minimize", () => {

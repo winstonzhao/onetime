@@ -126,6 +126,7 @@ ipcMain.handle('storage:import', async (_, filePath) => {
 
 // Register IPC handlers
 ipcMain.handle('clipboard:copy', (_, text: string) => {
+  console.log('Main process: copying to clipboard:', text); // Debug log
   clipboard.writeText(text);
 });
 

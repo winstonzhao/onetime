@@ -4,7 +4,7 @@ import { generateTOTP, getRemainingSeconds } from '../../services/totp';
 
 const Passwords = () => {
   const [otpEntries, setOtpEntries] = useState<OTPEntry[]>([]);
-  const [codes, setCodes] = useState<{ [key: string]: string }>({});
+  const [totpCodes, setTotpCodes] = useState<{ [key: string]: string }>({});
   const [timeProgress, setTimeProgress] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,17 +64,17 @@ const Passwords = () => {
     const newCodes: { [key: string]: string } = {};
     for (const entry of otpEntries) {
       try {
-        newCodes[entry.id] = await generateTOTP(
+        newCodes[entry.secret] = await generateTOTP(
           entry.secret,
           entry.period || 30,
           entry.digits || 6
         );
       } catch (error) {
         console.error('Error generating TOTP for entry:', entry.name, error);
-        newCodes[entry.id] = '000000';
+        newCodes[entry.secret] = '000000';
       }
     }
-    setCodes(newCodes);
+    setTotpCodes(newCodes);
   }, [otpEntries]);
 
   useEffect(() => {
@@ -199,7 +199,9 @@ const Passwords = () => {
       const selectedEntry = filteredAndSortedEntries[selectedIndex];
       if (selectedEntry) {
         // Copy password and minimize
-        window.electronAPI.copyToClipboard(codes[selectedEntry.secret] || '');
+        const code = totpCodes[selectedEntry.secret] || '';
+        console.log('Copying code:', code, 'from secret:', selectedEntry.secret); // Debug log
+        window.electronAPI.copyToClipboard(code);
         window.electronAPI.minimizeWindow();
       }
     }
@@ -245,7 +247,9 @@ const Passwords = () => {
               key={entry.id} 
               className={`password-item ${entry.isFavorite ? 'favorite' : ''} ${index === selectedIndex ? 'selected' : ''}`}
               onClick={() => {
-                window.electronAPI.copyToClipboard(codes[entry.secret] || '');
+                const code = totpCodes[entry.secret] || '';
+                console.log('Copying code:', code, 'from secret:', entry.secret); // Debug log
+                window.electronAPI.copyToClipboard(code);
                 window.electronAPI.minimizeWindow();
               }}
             >
@@ -314,11 +318,11 @@ const Passwords = () => {
                   </div>
                   <div className="password-code-container">
                     <div className="password-code">
-                      {formatCode(codes[entry.id] || '000000')}
+                      {formatCode(totpCodes[entry.secret] || '000000')}
                     </div>
                     <button
                       className={`copy-button ${copiedId === entry.id ? 'copied' : ''}`}
-                      onClick={() => copyToClipboard(entry.id, codes[entry.id] || '000000')}
+                      onClick={() => copyToClipboard(entry.id, totpCodes[entry.secret] || '000000')}
                       aria-label="Copy code to clipboard"
                     >
                       {copiedId === entry.id ? (
