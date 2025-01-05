@@ -3,7 +3,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 async function generateIco() {
-  const sizes = [16, 24, 32, 48, 64, 128];
+  const sizes = [16, 24, 32, 48, 64, 128, 256, 512, 1024];
   const pngBuffers = await Promise.all(
     sizes.map(size => 
       sharp(path.join(__dirname, '../public/icon.svg'))
@@ -31,10 +31,10 @@ async function generateIco() {
     const size = sizes[i];
     const imageSize = pngBuffers[i].length;
 
-    directories.writeUInt8(size === 256 ? 0 : size, i * 16); // Width
-    directories.writeUInt8(size === 256 ? 0 : size, i * 16 + 1); // Height
-    directories.writeUInt8(0, i * 16 + 2); // Color palette
-    directories.writeUInt8(0, i * 16 + 3); // Reserved
+    directories.writeUInt16LE(size === 256 ? 0 : size, i * 16); // Width
+    directories.writeUInt16LE(size === 256 ? 0 : size, i * 16 + 1); // Height
+    directories.writeUInt16LE(0, i * 16 + 2); // Color palette
+    directories.writeUInt16LE(0, i * 16 + 3); // Reserved
     directories.writeUInt16LE(1, i * 16 + 4); // Color planes
     directories.writeUInt16LE(32, i * 16 + 6); // Bits per pixel
     directories.writeUInt32LE(imageSize, i * 16 + 8); // Image size

@@ -25,5 +25,5 @@ dist-ssr
 
 .windsurfrules
 
-electron-dist
+dist-electron
 release

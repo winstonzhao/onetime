@@ -8,12 +8,12 @@
     "noImplicitAny": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "outDir": "dist",
+    "outDir": "../dist-electron",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
       "*": ["node_modules/*"]
     }
   },
-  "include": ["main.ts"]
+  "include": ["main.ts", "preload.ts"]
 }
