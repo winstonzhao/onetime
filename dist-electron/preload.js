@@ -6,5 +6,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   exportStorage: (filePath) => ipcRenderer.invoke("storage:export", filePath),
   importStorage: (filePath) => ipcRenderer.invoke("storage:import", filePath),
   showSaveDialog: (options) => ipcRenderer.invoke("dialog:showSave", options),
-  showOpenDialog: (options) => ipcRenderer.invoke("dialog:showOpen", options)
+  showOpenDialog: (options) => ipcRenderer.invoke("dialog:showOpen", options),
+  onFocusSearch: (callback) => ipcRenderer.on("focus-search", callback)
 });

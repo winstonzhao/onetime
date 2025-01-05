@@ -30,4 +30,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   importStorage: (filePath: string) => ipcRenderer.invoke('storage:import', filePath),
   showSaveDialog: (options: any) => ipcRenderer.invoke('dialog:showSave', options),
   showOpenDialog: (options: any) => ipcRenderer.invoke('dialog:showOpen', options),
+  onFocusSearch: (callback: () => void) => ipcRenderer.on('focus-search', callback),
 });

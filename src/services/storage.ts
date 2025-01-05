@@ -7,6 +7,7 @@ declare global {
       importStorage: (filePath: string) => Promise<StorageData | null>;
       showSaveDialog: (options: any) => Promise<{ filePath?: string; canceled: boolean }>;
       showOpenDialog: (options: any) => Promise<{ filePaths: string[]; canceled: boolean }>;
+      onFocusSearch: (callback: () => void) => void;
     };
   }
 }
@@ -28,6 +29,7 @@ export interface UserPreferences {
   lockTimeout: number; // in minutes
   defaultDigits: number;
   defaultPeriod: number;
+  searchHotkey: string;
 }
 
 export interface StorageData {
@@ -42,6 +44,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   lockTimeout: 5,
   defaultDigits: 6,
   defaultPeriod: 30,
+  searchHotkey: 'CommandOrControl+Shift+Space',
 };
 
 const DEFAULT_STORAGE: StorageData = {

@@ -835,6 +835,7 @@ h1 {
   gap: 1rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid var(--dark-border);
+  margin-bottom: 1.5rem;
 }
 
 .setting-item:last-child {
@@ -845,6 +846,16 @@ h1 {
   flex: 1;
   font-size: 0.95rem;
   color: var(--dark-text-primary);
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.setting-item .help-text {
+  display: block;
+  color: var(--dark-text-secondary);
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .setting-item select,
@@ -901,6 +912,90 @@ h1 {
 .message.error {
   background-color: rgba(255, 0, 0, 0.1);
   color: #f44336;
+}
+
+.hotkey-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.hotkey-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.hotkey-title {
+  font-size: 1rem;
+  color: var(--dark-text-primary);
+  font-weight: 500;
+}
+
+.hotkey-instruction {
+  font-size: 0.9rem;
+  color: var(--dark-text-secondary);
+}
+
+.hotkey-input {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.hotkey-input input {
+  width: 100%;
+  font-family: monospace;
+  text-align: center;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--dark-border);
+  background-color: var(--dark-surface);
+  color: var(--dark-text-primary);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hotkey-input input.recording {
+  border-color: var(--dark-accent);
+  background-color: var(--dark-surface);
+  animation: pulse 1.5s infinite;
+}
+
+.hotkey-button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--dark-accent);
+  color: var(--dark-text-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-width: 120px;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.hotkey-button:hover {
+  background-color: var(--dark-accent-hover);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
 }
 
 /* Utility classes */

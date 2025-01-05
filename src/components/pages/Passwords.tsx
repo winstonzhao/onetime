@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { storageService, OTPEntry } from '../../services/storage';
 import { generateTOTP, getRemainingSeconds } from '../../services/totp';
 
@@ -11,11 +11,22 @@ const Passwords = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: '', issuer: '' });
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Load OTP entries
   useEffect(() => {
     const entries = storageService.getOTPEntries();
     setOtpEntries(entries);
+  }, []);
+
+  useEffect(() => {
+    // Listen for focus-search event
+    window.electronAPI.onFocusSearch(() => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+        searchInputRef.current.select();
+      }
+    });
   }, []);
 
   // Generate TOTP codes and update remaining time
@@ -165,11 +176,12 @@ const Passwords = () => {
           <h1>One-Time Passwords</h1>
           <div className="search-container">
             <input
+              ref={searchInputRef}
               type="text"
+              className="search-input"
               placeholder="Search accounts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
             />
           </div>
           <div className="timer-container">
