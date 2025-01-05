@@ -1,5 +1,5 @@
 "use strict";
-const { app, BrowserWindow, globalShortcut, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, globalShortcut, ipcMain, dialog, clipboard } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const userDataPath = path.join(app.getPath("userData"), "storage.json");
@@ -98,6 +98,14 @@ ipcMain.handle("storage:import", async (_, filePath) => {
   } catch (error) {
     console.error("Failed to import storage:", error);
     return null;
+  }
+});
+ipcMain.handle("clipboard:copy", (_, text) => {
+  clipboard.writeText(text);
+});
+ipcMain.handle("window:minimize", () => {
+  if (mainWindow) {
+    mainWindow.minimize();
   }
 });
 app.whenReady().then(() => {

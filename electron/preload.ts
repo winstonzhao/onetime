@@ -36,4 +36,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   offFocusSearch: (callback: () => void) => {
     ipcRenderer.removeListener('focus-search-and-navigate', callback);
   },
+  copyToClipboard: (text: string) => ipcRenderer.invoke('clipboard:copy', text),
+  minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { storageService, OTPEntry } from '../../services/storage';
 import { generateTOTP, getRemainingSeconds } from '../../services/totp';
 
@@ -11,7 +11,24 @@ const Passwords = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: '', issuer: '' });
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const filteredAndSortedEntries = useMemo(() => {
+    return otpEntries
+      .filter(entry => {
+        const searchLower = searchQuery.toLowerCase();
+        return entry.name.toLowerCase().includes(searchLower) ||
+               (entry.issuer || '').toLowerCase().includes(searchLower);
+      })
+      .sort((a, b) => {
+        // Sort by favorite status first
+        if (a.isFavorite && !b.isFavorite) return -1;
+        if (!a.isFavorite && b.isFavorite) return 1;
+        // Then sort alphabetically by name
+        return a.name.localeCompare(b.name);
+      });
+  }, [otpEntries, searchQuery]);
 
   // Load OTP entries
   useEffect(() => {
@@ -168,19 +185,29 @@ const Passwords = () => {
     setDeleteId(null);
   }, []);
 
-  const filteredAndSortedEntries = otpEntries
-    .filter(entry => {
-      const searchLower = searchQuery.toLowerCase();
-      return entry.name.toLowerCase().includes(searchLower) ||
-             (entry.issuer || '').toLowerCase().includes(searchLower);
-    })
-    .sort((a, b) => {
-      // Sort by favorite status first
-      if (a.isFavorite && !b.isFavorite) return -1;
-      if (!a.isFavorite && b.isFavorite) return 1;
-      // Then sort alphabetically by name
-      return a.name.localeCompare(b.name);
-    });
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => 
+        prev < filteredAndSortedEntries.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => prev > 0 ? prev - 1 : 0);
+    } else if (e.key === 'Enter' && filteredAndSortedEntries.length > 0) {
+      e.preventDefault();
+      const selectedEntry = filteredAndSortedEntries[selectedIndex];
+      if (selectedEntry) {
+        // Copy password and minimize
+        window.electronAPI.copyToClipboard(codes[selectedEntry.secret] || '');
+        window.electronAPI.minimizeWindow();
+      }
+    }
+  };
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [searchQuery]);
 
   return (
     <div className="container">
@@ -195,6 +222,7 @@ const Passwords = () => {
               placeholder="Search accounts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="search-input"
             />
           </div>
@@ -212,8 +240,15 @@ const Passwords = () => {
         </div>
         
         <div className="passwords-list">
-          {filteredAndSortedEntries.map(entry => (
-            <div key={entry.id} className={`password-item ${entry.isFavorite ? 'favorite' : ''}`}>
+          {filteredAndSortedEntries.map((entry, index) => (
+            <div 
+              key={entry.id} 
+              className={`password-item ${entry.isFavorite ? 'favorite' : ''} ${index === selectedIndex ? 'selected' : ''}`}
+              onClick={() => {
+                window.electronAPI.copyToClipboard(codes[entry.secret] || '');
+                window.electronAPI.minimizeWindow();
+              }}
+            >
               {editingId === entry.id ? (
                 <div className="edit-form">
                   <input
