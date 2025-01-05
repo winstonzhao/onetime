@@ -24,6 +24,8 @@
 
   /* Brand styles */
   --brand-gradient: linear-gradient(90deg, #646cff, #535bf2);
+  --brand-gradient-secondary: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  --brand-gradient-gray: linear-gradient(90deg, #4a5568, #4a5568);
   --brand-shadow: 0 4px 12px rgba(100, 108, 255, 0.2);
   --font-display: 'Inter', sans-serif;
   --font-primary: 'Inter', sans-serif;
@@ -303,16 +305,35 @@ p {
   background: var(--dark-bg-primary) !important;
   padding: 0 !important;
   width: 100% !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 #qr-reader__scan_region {
   background: var(--dark-bg-primary) !important;
 }
 
-#qr-reader__dashboard {
-  background: var(--dark-bg-secondary) !important;
-  border-top: 1px solid var(--dark-border) !important;
-  padding: 1rem !important;
+#html5-qrcode-anchor-scan-type-change {
+  background: var(--brand-gradient-gray) !important;
+  color: var(--dark-text-primary) !important;
+  border: none !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-family: var(--font-primary) !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  margin-top: 1rem !important;
+}
+
+#qr-reader__scan_region img {
+  width: 128px;
+}
+
+#qr-reader img {
+  filter: invert(1);
 }
 
 #qr-reader__dashboard button {
