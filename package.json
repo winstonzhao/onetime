@@ -11,7 +11,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "electron:dev": "concurrently \"vite\" \"electron .\"",
+    "electron:dev": "vite build; electron .",
     "electron:build": "vite build && vite build -c vite.config.electron.ts && electron-builder",
     "electron:preview": "electron ."
   },
