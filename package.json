@@ -69,13 +69,24 @@
     "win": {
       "target": [
         {
+          "target": "msi",
+          "arch": ["x64"]
+        },
+        {
           "target": "portable",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         }
       ],
       "icon": "public/icon.ico"
+    },
+    "msi": {
+      "oneClick": false,
+      "perMachine": false,
+      "shortcutName": "OneTime",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "menuCategory": "OneTime",
+      "upgradeCode": "6A2D4696-D8BD-499D-A18F-6847B7000A84"
     },
     "asar": true,
     "forceCodeSigning": false
