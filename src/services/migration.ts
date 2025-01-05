@@ -1,160 +1,104 @@
 import * as protobuf from 'protobufjs';
+import { base32 } from 'rfc4648';
+import protoDefinition from './otpauth.proto?raw';
 
-// Define the Protocol Buffer schema for Google Authenticator migration
-const migrationProto = `
-syntax = "proto3";
-
-message MigrationPayload {
-  repeated OtpParameters otp_parameters = 1;
-  int32 version = 2;
-  int32 batch_size = 3;
-  int32 batch_index = 4;
-  int32 batch_id = 5;
-}
-
-message OtpParameters {
-  bytes secret = 1;
-  string name = 2;
-  string issuer = 3;
-  Algorithm algorithm = 4;
-  DigitCount digits = 5;
-  OtpType type = 6;
-  int64 counter = 7;
-
-  enum Algorithm {
-    ALGORITHM_UNSPECIFIED = 0;
-    ALGORITHM_SHA1 = 1;
-    ALGORITHM_SHA256 = 2;
-    ALGORITHM_SHA512 = 3;
-    ALGORITHM_MD5 = 4;
-  }
-
-  enum DigitCount {
-    DIGIT_COUNT_UNSPECIFIED = 0;
-    DIGIT_COUNT_SIX = 1;
-    DIGIT_COUNT_EIGHT = 2;
-  }
-
-  enum OtpType {
-    OTP_TYPE_UNSPECIFIED = 0;
-    OTP_TYPE_HOTP = 1;
-    TOTP = 2;
-  }
-}`;
-
-// Convert Algorithm enum to string
-const algorithmMap: { [key: number]: string } = {
-  0: 'SHA1', // Default to SHA1 for unspecified
-  1: 'SHA1',
-  2: 'SHA256',
-  3: 'SHA512',
-  4: 'MD5'
-};
-
-// Convert DigitCount enum to number
-const digitCountMap: { [key: number]: number } = {
-  0: 6, // Default to 6 digits for unspecified
-  1: 6,
-  2: 8
-};
-
-export interface ParsedOtpParameters {
+export interface OTPSecretInfo {
   secret: string;
   name: string;
-  issuer?: string;
+  issuer: string;
   algorithm: string;
   digits: number;
-  type: 'hotp' | 'totp';
-  counter?: number;
+  type: string;
+  counter: {
+    low: number;
+    high: number;
+    unsigned: boolean;
+  };
 }
 
-export class MigrationService {
-  private root: protobuf.Root;
-  private MigrationPayload: protobuf.Type;
+const ALGORITHM = {
+  0: "unspecified",
+  1: "sha1",
+  2: "sha256",
+  3: "sha512",
+  4: "md5",
+} as const;
 
-  constructor() {
-    this.root = protobuf.parse(migrationProto).root;
-    this.MigrationPayload = this.root.lookupType('MigrationPayload');
+const DIGIT_COUNT = {
+  0: 6, // default to 6 for unspecified
+  1: 6,
+  2: 8,
+} as const;
+
+const OTP_TYPE = {
+  0: "unspecified",
+  1: "hotp",
+  2: "totp",
+} as const;
+
+// Convert a base64 string to Uint8Array
+function base64ToUint8Array(base64: string): Uint8Array {
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
   }
+  return bytes;
+}
 
-  /**
-   * Parse a Google Authenticator migration URI
-   * @param uri The migration URI (otpauth-migration://offline?data=...)
-   * @returns Array of parsed OTP parameters
-   */
-  async parseGoogleAuthMigration(uri: string): Promise<ParsedOtpParameters[]> {
-    try {
-      // Extract the base64 data from the URI
-      const match = uri.match(/data=([^&]+)/);
-      if (!match) {
-        throw new Error('Invalid migration URI format');
-      }
-
-      // Decode the base64 data
-      const base64Data = match[1].replace(/-/g, '+').replace(/_/g, '/');
-      const binaryData = Buffer.from(base64Data, 'base64');
-
-      // Decode the protobuf message
-      const message = this.MigrationPayload.decode(binaryData);
-      const payload = this.MigrationPayload.toObject(message, {
-        longs: String,
-        enums: Number,
-        defaults: true,
-      });
-
-      // Convert the decoded message to our format
-      return payload.otpParameters.map(params => ({
-        secret: Buffer.from(params.secret).toString('base64'),
-        name: params.name || '',
-        issuer: params.issuer || undefined,
-        algorithm: algorithmMap[params.algorithm] || 'SHA1',
-        digits: digitCountMap[params.digits] || 6,
-        type: params.type === 1 ? 'hotp' : 'totp',
-        counter: params.type === 1 ? Number(params.counter) : undefined
-      }));
-    } catch (error) {
-      console.error('Failed to parse migration data:', error);
-      throw new Error('Failed to parse migration data');
+export async function parseGoogleAuthMigration(dataUri: string): Promise<OTPSecretInfo[]> {
+  try {
+    if (typeof dataUri !== "string") {
+      throw new Error("source url must be a string");
     }
-  }
 
-  /**
-   * Parse a single otpauth URI
-   * @param uri The otpauth URI (otpauth://totp/...)
-   * @returns Parsed OTP parameters
-   */
-  parseOtpAuthUri(uri: string): ParsedOtpParameters {
-    try {
-      const url = new URL(uri);
-      if (!url.protocol.startsWith('otpauth:')) {
-        throw new Error('Invalid otpauth URI');
-      }
-
-      const type = url.protocol.replace('otpauth:', '').replace('//', '') as 'hotp' | 'totp';
-      const label = decodeURIComponent(url.pathname.substring(1));
-      const params = Object.fromEntries(url.searchParams.entries());
-
-      // Split label into issuer and name if it contains a colon
-      let issuer = params.issuer;
-      let name = label;
-      if (label.includes(':')) {
-        [issuer, name] = label.split(':').map(s => s.trim());
-      }
-
-      return {
-        secret: params.secret,
-        name,
-        issuer,
-        algorithm: (params.algorithm || 'SHA1').toUpperCase(),
-        digits: parseInt(params.digits || '6', 10),
-        type,
-        counter: type === 'hotp' ? parseInt(params.counter || '0', 10) : undefined
-      };
-    } catch (error) {
-      console.error('Failed to parse otpauth URI:', error);
-      throw new Error('Invalid otpauth URI');
+    if (!dataUri.startsWith("otpauth-migration://offline")) {
+      throw new Error("source url must begin with otpauth-migration://offline");
     }
+
+    // Extract the data parameter using URL
+    const url = new URL(dataUri);
+    const sourceData = url.searchParams.get("data");
+
+    if (!sourceData) {
+      throw new Error("source url doesn't contain otpauth data");
+    }
+
+    // Load and parse the protobuf schema
+    const root = await protobuf.parse(protoDefinition).root;
+    const MigrationPayload = root.lookupType('MigrationPayload');
+
+    // Decode the base64 data
+    const binaryData = base64ToUint8Array(sourceData);
+
+    // Decode the protobuf message
+    const message = MigrationPayload.decode(binaryData);
+    const decodedOtpPayload = MigrationPayload.toObject(message, {
+      longs: String,
+      enums: Number,
+      defaults: true,
+    });
+
+    // Convert the decoded message to our format
+    return decodedOtpPayload.otpParameters.map(params => ({
+      secret: base32.stringify(params.secret),
+      name: params.name || '',
+      issuer: params.issuer || '',
+      algorithm: ALGORITHM[params.algorithm] || 'sha1',
+      digits: DIGIT_COUNT[params.digits] || 6,
+      type: OTP_TYPE[params.type] || 'totp',
+      counter: {
+        low: 0,
+        high: 0,
+        unsigned: false
+      }
+    }));
+  } catch (error) {
+    console.error('Error parsing OTP migration data:', error);
+    throw error;
   }
 }
 
-export const migrationService = new MigrationService();
+export const migrationService = {
+  parseGoogleAuthMigration
+};

@@ -347,6 +347,10 @@ p {
   font-weight: 500 !important;
 }
 
+#qr-reader__dashboard_section :nth-child(2) {
+  margin-top: 1rem !important;
+}
+
 #qr-reader select {
   background: var(--dark-surface) !important;
   color: var(--dark-text-primary) !important;
