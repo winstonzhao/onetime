@@ -9,6 +9,7 @@ const Passwords = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: '', issuer: '' });
 
   // Load OTP entries
@@ -122,6 +123,23 @@ const Passwords = () => {
     }
   }, [editingId, editForm, otpEntries]);
 
+  const startDelete = useCallback((entry: OTPEntry) => {
+    setDeleteId(entry.id);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (deleteId) {
+      const newEntries = otpEntries.filter(entry => entry.id !== deleteId);
+      setOtpEntries(newEntries);
+      await storageService.updateOTPEntries(newEntries);
+      setDeleteId(null);
+    }
+  }, [deleteId, otpEntries]);
+
+  const cancelDelete = useCallback(() => {
+    setDeleteId(null);
+  }, []);
+
   const filteredAndSortedEntries = otpEntries
     .filter(entry => {
       const searchLower = searchQuery.toLowerCase();
@@ -185,18 +203,19 @@ const Passwords = () => {
                 </div>
               ) : (
                 <div className="password-item-content">
-                  <div className="password-info">
-                    <div className="name-row">
-                      <button
-                        className={`favorite-button ${entry.isFavorite ? 'active' : ''}`}
-                        onClick={() => toggleFavorite(entry)}
-                        aria-label={entry.isFavorite ? "Remove from favorites" : "Add to favorites"}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={entry.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                      </button>
-                      <h3>{entry.name}</h3>
+                  <div className="name-row">
+                    <button
+                      className={`favorite-button ${entry.isFavorite ? 'active' : ''}`}
+                      onClick={() => toggleFavorite(entry)}
+                      aria-label={entry.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={entry.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </button>
+                    <h3>{entry.name}</h3>
+                    {entry.issuer && <span className="issuer">{entry.issuer}</span>}
+                    <div className="name-row-buttons">
                       <button
                         className="edit-button"
                         onClick={() => startEditing(entry)}
@@ -207,8 +226,18 @@ const Passwords = () => {
                           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
                       </button>
+                      <button
+                        className="delete-button"
+                        onClick={() => startDelete(entry)}
+                        aria-label="Delete entry"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                      </button>
                     </div>
-                    {entry.issuer && <span className="issuer">{entry.issuer}</span>}
                   </div>
                   <div className="password-code-container">
                     <div className="password-code">
@@ -247,6 +276,22 @@ const Passwords = () => {
           )}
         </div>
       </div>
+      {deleteId && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Entry</h3>
+            <p>Are you sure you want to delete this entry? This action cannot be undone.</p>
+            <div className="confirm-dialog-actions">
+              <button onClick={cancelDelete} className="confirm-cancel-button">
+                Cancel
+              </button>
+              <button onClick={confirmDelete} className="confirm-delete-button">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

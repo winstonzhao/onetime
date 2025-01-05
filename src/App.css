@@ -455,6 +455,61 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+}
+
+.password-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.name-row h3 {
+  margin: 0;
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.name-row-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.issuer {
+  font-size: 0.85rem;
+  color: var(--dark-text-secondary);
+  margin-left: 0.5rem;
+}
+
+.password-code-container {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.password-code {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--dark-text-primary);
 }
 
 .password-item:hover {
@@ -467,108 +522,80 @@ p {
   border-color: rgba(255, 215, 0, 0.2);
 }
 
-.password-info {
-  flex: 1;
-  min-width: 0; /* Allows text truncation */
-}
-
-.name-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.name-row h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.issuer {
-  font-size: 0.85rem;
-  color: var(--dark-text-secondary);
-  display: block;
-  margin-top: 0.25rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .favorite-button,
-.edit-button {
-  background: none;
+.edit-button,
+.delete-button,
+.copy-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: none;
-  padding: 0.4rem;
-  cursor: pointer;
+  background: none;
   color: var(--dark-text-secondary);
-  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.favorite-button:hover,
-.edit-button:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  transform: scale(1.1);
+  border-radius: 6px;
 }
 
 .favorite-button svg,
-.edit-button svg {
-  width: 1rem;
-  height: 1rem;
+.edit-button svg,
+.delete-button svg,
+.copy-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.favorite-button {
+  opacity: 0.6;
+}
+
+.favorite-button:hover,
+.favorite-button.active {
+  opacity: 1;
+  color: gold;
 }
 
 .favorite-button.active {
-  color: #ffd700;
   animation: star-pulse 0.3s ease-out;
 }
 
-.password-code-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-left: 1rem;
+.edit-button {
+  opacity: 0.6;
 }
 
-.password-code {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 1.25rem;
-  font-weight: 500;
-  letter-spacing: 1px;
-  color: var(--dark-text-primary);
+.edit-button:hover {
+  opacity: 1;
+  color: var(--dark-accent);
+  background-color: rgba(var(--dark-accent-rgb), 0.1);
+}
+
+.delete-button {
+  opacity: 0.6;
+}
+
+.delete-button:hover {
+  opacity: 1;
+  color: #ff4444;
+  background-color: rgba(255, 68, 68, 0.1);
 }
 
 .copy-button {
-  background: none;
-  border: none;
-  padding: 0.4rem;
-  cursor: pointer;
-  color: var(--dark-text-secondary);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  opacity: 0.6;
+  margin-left: 0.5rem;
 }
 
 .copy-button:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  transform: scale(1.1);
+  opacity: 1;
+  color: var(--dark-accent);
+  background-color: rgba(var(--dark-accent-rgb), 0.1);
 }
 
 .copy-button.copied {
-  color: var(--success);
-  animation: pop 0.3s ease-out;
-}
-
-.copy-button svg {
-  width: 1rem;
-  height: 1rem;
+  color: #4CAF50;
+  opacity: 1;
 }
 
 .edit-form {
@@ -579,24 +606,18 @@ p {
   animation: fade-in 0.2s ease-out;
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 .edit-input {
   width: 100%;
-  padding: 0.75rem;
+  height: 42px;
+  padding: 0 1rem;
   border: 1px solid var(--dark-border);
   border-radius: 6px;
   background-color: var(--dark-bg);
   color: var(--dark-text-primary);
-  font-size: 1rem;
+  font-size: 0.9rem;
+  line-height: 42px;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .edit-input:focus {
@@ -607,19 +628,29 @@ p {
 
 .edit-actions {
   display: flex;
+  align-items: stretch;
   gap: 0.75rem;
 }
 
 .save-button,
 .cancel-button {
   flex: 1;
-  padding: 0.75rem;
-  border: none;
+  height: 42px;
+  margin: 0;
+  padding: 0 1rem;
+  border: 1px solid transparent;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  line-height: 1;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .save-button {
@@ -635,7 +666,7 @@ p {
 .cancel-button {
   background-color: var(--dark-surface);
   color: var(--dark-text-secondary);
-  border: 1px solid var(--dark-border);
+  border-color: var(--dark-border);
 }
 
 .cancel-button:hover {
@@ -647,6 +678,84 @@ p {
   text-align: center;
   color: var(--dark-text-secondary);
   padding: 2rem;
+}
+
+.confirm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fade-in 0.2s ease-out;
+}
+
+.confirm-dialog {
+  background-color: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: slide-up 0.2s ease-out;
+}
+
+.confirm-dialog h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.confirm-dialog p {
+  margin: 0 0 1.5rem 0;
+  color: var(--dark-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.confirm-delete-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #ff4444;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-delete-button:hover {
+  background-color: #ff2222;
+  transform: translateY(-1px);
+}
+
+.confirm-cancel-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--dark-border);
+  border-radius: 6px;
+  background-color: var(--dark-surface);
+  color: var(--dark-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-cancel-button:hover {
+  background-color: var(--dark-bg-secondary);
+  transform: translateY(-1px);
 }
 
 /* Utility classes */
@@ -689,6 +798,15 @@ p {
   }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes star-pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.2); }
@@ -705,6 +823,17 @@ p {
   from {
     opacity: 0;
     transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
