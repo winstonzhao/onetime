@@ -1,7 +1,9 @@
 {
-  "name": "otp_manager",
+  "name": "onetime",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A secure one-time password manager",
+  "author": "Your Name",
   "type": "commonjs",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -10,7 +12,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron:dev": "concurrently \"vite\" \"electron .\"",
-    "electron:build": "vite build && electron-builder",
+    "electron:build": "tsc -b && vite build && electron-builder",
     "electron:preview": "electron ."
   },
   "dependencies": {
@@ -33,12 +35,13 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.2",
-    "electron": "^33.2.1",
-    "electron-builder": "^25.1.8",
+    "electron": "^27.1.0",
+    "electron-builder": "^24.9.1",
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "sharp": "^0.33.5",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5",
@@ -49,17 +52,40 @@
     "appId": "com.onetime.app",
     "productName": "OneTime",
     "directories": {
-      "output": "dist-electron"
+      "output": "release"
     },
     "files": [
       "dist/**/*",
-      "dist-electron/**/*"
+      "electron/**/*"
     ],
     "extraResources": [
       {
         "from": "electron/preload.js",
         "to": "preload.js"
       }
-    ]
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   }
 }
