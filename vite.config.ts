@@ -10,11 +10,22 @@ export default defineConfig({
     electron([
       {
         entry: path.resolve(__dirname, 'electron/main.ts'),
+        vite: {
+          build: {
+            outDir: 'dist-electron',
+          },
+        },
       },
       {
         entry: path.resolve(__dirname, 'electron/preload.ts'),
         onstart(options) {
-          options.reload()
+          // Prevent automatic reload
+          // options.reload()
+        },
+        vite: {
+          build: {
+            outDir: 'dist-electron',
+          },
         },
       },
     ]),

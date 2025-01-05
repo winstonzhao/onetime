@@ -25,11 +25,6 @@ function createWindow() {
     // In production, load the index.html file
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
   }
-
-  // Open DevTools by default in development
-  if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.webContents.openDevTools()
-  }
 }
 
 // Handle storage operations
@@ -98,7 +93,8 @@ app.whenReady().then(() => {
   })
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    // On macOS, re-create a window only if mainWindow is null
+    if (!mainWindow) {
       createWindow()
     }
   })

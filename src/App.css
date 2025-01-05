@@ -805,6 +805,104 @@ h1 {
   transform: translateY(-1px);
 }
 
+/* Settings page styles */
+.settings-card {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.settings-card h1 {
+  margin-bottom: 2rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.settings-section {
+  margin-bottom: 2.5rem;
+}
+
+.settings-section h2 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--dark-text-secondary);
+  margin-bottom: 1rem;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--dark-border);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-item label {
+  flex: 1;
+  font-size: 0.95rem;
+  color: var(--dark-text-primary);
+}
+
+.setting-item select,
+.setting-item input[type="number"] {
+  width: 120px;
+  padding: 0.5rem;
+  border: 1px solid var(--dark-border);
+  border-radius: 6px;
+  background-color: var(--dark-surface);
+  color: var(--dark-text-primary);
+  font-size: 0.9rem;
+}
+
+.setting-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-right: 0.5rem;
+}
+
+.backup-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.backup-buttons button {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--dark-border);
+  border-radius: 6px;
+  background-color: var(--dark-surface);
+  color: var(--dark-text-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backup-buttons button:hover {
+  background-color: var(--dark-bg-hover);
+  border-color: var(--dark-accent);
+}
+
+.message {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.message.success {
+  background-color: rgba(0, 255, 0, 0.1);
+  color: #4caf50;
+}
+
+.message.error {
+  background-color: rgba(255, 0, 0, 0.1);
+  color: #f44336;
+}
+
 /* Utility classes */
 .text-center { text-align: center; }
 .mb-1 { margin-bottom: 0.5rem; }
