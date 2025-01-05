@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { storageService, OTPEntry } from '../../services/storage';
 import { generateTOTP, getRemainingSeconds } from '../../services/totp';
 
@@ -68,43 +68,59 @@ const Passwords = () => {
     }
   };
 
-  const toggleFavorite = async (entry: OTPEntry) => {
+  const toggleFavorite = useCallback(async (entry: OTPEntry) => {
+    // Update local state immediately
+    const updatedEntry = { ...entry, isFavorite: !entry.isFavorite };
+    setOtpEntries(prev => prev.map(e => 
+      e.id === entry.id ? updatedEntry : e
+    ));
+
+    // Save to storage asynchronously
     try {
-      await storageService.updateOTPEntry(entry.id, {
-        ...entry,
-        isFavorite: !entry.isFavorite
-      });
-      const entries = storageService.getOTPEntries();
-      setOtpEntries(entries);
+      await storageService.updateOTPEntry(entry.id, updatedEntry);
     } catch (err) {
       console.error('Failed to update favorite status:', err);
+      // Revert local state on error
+      setOtpEntries(prev => prev.map(e => 
+        e.id === entry.id ? entry : e
+      ));
     }
-  };
+  }, []);
 
-  const startEditing = (entry: OTPEntry) => {
+  const startEditing = useCallback((entry: OTPEntry) => {
     setEditingId(entry.id);
     setEditForm({ name: entry.name, issuer: entry.issuer || '' });
-  };
+  }, []);
 
-  const saveEdit = async () => {
+  const saveEdit = useCallback(async () => {
     if (!editingId) return;
-    try {
-      const entry = otpEntries.find(e => e.id === editingId);
-      if (!entry) return;
+    
+    const entry = otpEntries.find(e => e.id === editingId);
+    if (!entry) return;
 
-      await storageService.updateOTPEntry(editingId, {
-        ...entry,
-        name: editForm.name,
-        issuer: editForm.issuer
-      });
-      
-      const entries = storageService.getOTPEntries();
-      setOtpEntries(entries);
-      setEditingId(null);
+    const updatedEntry = {
+      ...entry,
+      name: editForm.name,
+      issuer: editForm.issuer
+    };
+
+    // Update local state immediately
+    setOtpEntries(prev => prev.map(e => 
+      e.id === editingId ? updatedEntry : e
+    ));
+    setEditingId(null);
+
+    // Save to storage asynchronously
+    try {
+      await storageService.updateOTPEntry(editingId, updatedEntry);
     } catch (err) {
       console.error('Failed to save changes:', err);
+      // Revert local state on error
+      setOtpEntries(prev => prev.map(e => 
+        e.id === editingId ? entry : e
+      ));
     }
-  };
+  }, [editingId, editForm, otpEntries]);
 
   const filteredAndSortedEntries = otpEntries
     .filter(entry => {
@@ -142,34 +158,34 @@ const Passwords = () => {
         <div className="passwords-list">
           {filteredAndSortedEntries.map(entry => (
             <div key={entry.id} className={`password-item ${entry.isFavorite ? 'favorite' : ''}`}>
-              <div className="password-info">
-                {editingId === entry.id ? (
-                  <div className="edit-form">
-                    <input
-                      type="text"
-                      value={editForm.name}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Name"
-                      className="edit-input"
-                    />
-                    <input
-                      type="text"
-                      value={editForm.issuer}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, issuer: e.target.value }))}
-                      placeholder="Issuer"
-                      className="edit-input"
-                    />
-                    <div className="edit-actions">
-                      <button onClick={saveEdit} className="save-button">
-                        Save
-                      </button>
-                      <button onClick={() => setEditingId(null)} className="cancel-button">
-                        Cancel
-                      </button>
-                    </div>
+              {editingId === entry.id ? (
+                <div className="edit-form">
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Name"
+                    className="edit-input"
+                  />
+                  <input
+                    type="text"
+                    value={editForm.issuer}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, issuer: e.target.value }))}
+                    placeholder="Issuer"
+                    className="edit-input"
+                  />
+                  <div className="edit-actions">
+                    <button onClick={saveEdit} className="save-button">
+                      Save
+                    </button>
+                    <button onClick={() => setEditingId(null)} className="cancel-button">
+                      Cancel
+                    </button>
                   </div>
-                ) : (
-                  <>
+                </div>
+              ) : (
+                <div className="password-item-content">
+                  <div className="password-info">
                     <div className="name-row">
                       <button
                         className={`favorite-button ${entry.isFavorite ? 'active' : ''}`}
@@ -193,30 +209,30 @@ const Passwords = () => {
                       </button>
                     </div>
                     {entry.issuer && <span className="issuer">{entry.issuer}</span>}
-                  </>
-                )}
-              </div>
-              <div className="password-code-container">
-                <div className="password-code">
-                  {formatCode(codes[entry.id] || '000000')}
+                  </div>
+                  <div className="password-code-container">
+                    <div className="password-code">
+                      {formatCode(codes[entry.id] || '000000')}
+                    </div>
+                    <button
+                      className={`copy-button ${copiedId === entry.id ? 'copied' : ''}`}
+                      onClick={() => copyToClipboard(entry.id, codes[entry.id] || '000000')}
+                      aria-label="Copy code to clipboard"
+                    >
+                      {copiedId === entry.id ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
-                <button
-                  className={`copy-button ${copiedId === entry.id ? 'copied' : ''}`}
-                  onClick={() => copyToClipboard(entry.id, codes[entry.id] || '000000')}
-                  aria-label="Copy code to clipboard"
-                >
-                  {copiedId === entry.id ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  )}
-                </button>
-              </div>
+              )}
             </div>
           ))}
           
