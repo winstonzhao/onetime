@@ -1,4 +1,4 @@
-import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { MemoryRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navigation from './components/Navigation';
 import Passwords from './components/pages/Passwords';
@@ -34,7 +34,7 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
+    <Router initialEntries={['/']}>
       <AppContent />
     </Router>
   );

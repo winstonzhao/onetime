@@ -19,9 +19,19 @@ function createWindow() {
     }
   })
 
+  // Set CSP in the main process
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': ["default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https:"]
+      }
+    })
+  })
+
   // In development, load from the Vite dev server
   if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
+    mainWindow.loadURL('http://localhost:5173')
   } else {
     // In production, load the index.html file
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
