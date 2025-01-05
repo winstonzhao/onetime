@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, dialog, clipboard } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, dialog, clipboard, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -6,9 +6,14 @@ const fs = require('fs');
 const userDataPath = path.join(app.getPath('userData'), 'storage.json')
 
 let mainWindow = null
+let tray = null
 let currentHotkey = 'CommandOrControl+Shift+Space'
 
 function createWindow() {
+  if (mainWindow) {
+    return
+  }
+
   mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
@@ -16,7 +21,8 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
-    }
+    },
+    icon: path.join(__dirname, '..', 'public', 'icon.ico')
   })
 
   // Set CSP in the main process
@@ -36,18 +42,68 @@ function createWindow() {
     // In production, load the index.html file
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
   }
+
+  // Prevent window from closing
+  mainWindow.on('close', (event) => {
+    if (!app.isQuitting) {
+      event.preventDefault()
+      mainWindow.hide()
+    }
+  })
+
+  // Clean up the window reference when closed
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
+}
+
+function createTray() {
+  // Create a native image from the ICO file
+  const iconPath = path.join(__dirname, '..', 'public', 'icon.ico')
+  const trayIcon = nativeImage.createFromPath(iconPath)
+  tray = new Tray(trayIcon)
+  
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show OneTime',
+      click: () => {
+        showWindow()
+      }
+    },
+    { type: 'separator' },
+    {
+      label: 'Quit',
+      click: () => {
+        app.isQuitting = true
+        app.quit()
+      }
+    }
+  ])
+
+  tray.setToolTip('OneTime')
+  tray.setContextMenu(contextMenu)
+
+  // Single click on tray icon shows the window
+  tray.on('click', () => {
+    showWindow()
+  })
+}
+
+function showWindow() {
+  if (!mainWindow) {
+    createWindow()
+  }
+  if (mainWindow.isMinimized()) {
+    mainWindow.restore()
+  }
+  mainWindow.show()
+  mainWindow.focus()
 }
 
 function focusApp() {
-  if (mainWindow) {
-    if (mainWindow.isMinimized()) {
-      mainWindow.restore();
-    }
-    mainWindow.show();
-    mainWindow.focus();
-    // Send event to renderer to focus search and navigate
-    mainWindow.webContents.send('focus-search-and-navigate');
-  }
+  showWindow()
+  // Send event to renderer to focus search and navigate
+  mainWindow.webContents.send('focus-search-and-navigate');
 }
 
 // Handle storage operations
@@ -146,7 +202,19 @@ ipcMain.handle('window:minimize', () => {
   }
 });
 
+// Handle second instance
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    showWindow()
+  })
+}
+
 app.whenReady().then(() => {
+  createTray()
   createWindow()
 
   // Register keyboard shortcut to toggle DevTools
