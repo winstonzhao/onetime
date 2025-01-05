@@ -17,6 +17,7 @@
     "@electron/remote": "^2.1.2",
     "@types/uuid": "^10.0.0",
     "html5-qrcode": "^2.3.8",
+    "jsotp": "^1.0.4",
     "otpauth-migration-parser": "^0.1.1",
     "protobufjs": "^7.4.0",
     "react": "^18.3.1",
