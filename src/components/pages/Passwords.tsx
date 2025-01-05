@@ -4,7 +4,7 @@ import { generateTOTP, getRemainingSeconds } from '../../services/totp';
 
 const Passwords = () => {
   const [otpEntries, setOtpEntries] = useState<OTPEntry[]>([]);
-  const [totpCodes, setTotpCodes] = useState<{ [key: string]: string }>({});
+  const [totpCodes, setTotpCodes] = useState<{ [key: string]: string }>([]);
   const [timeProgress, setTimeProgress] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -247,10 +247,6 @@ const Passwords = () => {
               key={entry.id} 
               className={`password-item ${entry.isFavorite ? 'favorite' : ''} ${index === selectedIndex ? 'selected' : ''}`}
               onClick={() => {
-                const code = totpCodes[entry.secret] || '';
-                console.log('Copying code:', code, 'from secret:', entry.secret); // Debug log
-                window.electronAPI.copyToClipboard(code);
-                window.electronAPI.minimizeWindow();
               }}
             >
               {editingId === entry.id ? (
@@ -258,14 +254,14 @@ const Passwords = () => {
                   <input
                     type="text"
                     value={editForm.name}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))} // eslint-disable-line
                     placeholder="Name"
                     className="edit-input"
                   />
                   <input
                     type="text"
                     value={editForm.issuer}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, issuer: e.target.value }))}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, issuer: e.target.value }))} // eslint-disable-line
                     placeholder="Issuer"
                     className="edit-input"
                   />
@@ -322,7 +318,12 @@ const Passwords = () => {
                     </div>
                     <button
                       className={`copy-button ${copiedId === entry.id ? 'copied' : ''}`}
-                      onClick={() => copyToClipboard(entry.id, totpCodes[entry.secret] || '000000')}
+                      onClick={() => {
+                        const code = totpCodes[entry.secret] || '';
+                        console.log('Copying code:', code, 'from secret:', entry.secret); // Debug log
+                        window.electronAPI.copyToClipboard(code);
+                        copyToClipboard(entry.id, code);
+                      }}
                       aria-label="Copy code to clipboard"
                     >
                       {copiedId === entry.id ? (
