@@ -174,12 +174,16 @@ const Passwords = () => {
 
   const confirmDelete = useCallback(async () => {
     if (deleteId) {
-      const newEntries = otpEntries.filter(entry => entry.id !== deleteId);
-      setOtpEntries(newEntries);
-      await storageService.updateOTPEntries(newEntries);
-      setDeleteId(null);
+      const idToDelete = deleteId;
+      setDeleteId(null); // Clear deleteId first to close the modal immediately
+      try {
+        await storageService.deleteOTPEntry(idToDelete);
+        setOtpEntries(prev => prev.filter(entry => entry.id !== idToDelete));
+      } catch (err) {
+        console.error('Failed to delete entry:', err);
+      }
     }
-  }, [deleteId, otpEntries]);
+  }, [deleteId]);
 
   const cancelDelete = useCallback(() => {
     setDeleteId(null);
