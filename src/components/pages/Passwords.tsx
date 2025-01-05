@@ -19,14 +19,27 @@ const Passwords = () => {
     setOtpEntries(entries);
   }, []);
 
+  // Focus search input on mount
   useEffect(() => {
-    // Listen for focus-search event
-    window.electronAPI.onFocusSearch(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, []);
+
+  // Add effect to handle focus events
+  useEffect(() => {
+    const handleFocusSearch = () => {
       if (searchInputRef.current) {
         searchInputRef.current.focus();
-        searchInputRef.current.select();
       }
-    });
+    };
+
+    window.electronAPI.onFocusSearch(handleFocusSearch);
+    
+    // Cleanup listener on unmount
+    return () => {
+      window.electronAPI.offFocusSearch?.(handleFocusSearch);
+    };
   }, []);
 
   // Generate TOTP codes and update remaining time
@@ -177,11 +190,12 @@ const Passwords = () => {
           <div className="search-container">
             <input
               ref={searchInputRef}
+              id="search-input"
               type="text"
-              className="search-input"
               placeholder="Search accounts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
             />
           </div>
           <div className="timer-container">

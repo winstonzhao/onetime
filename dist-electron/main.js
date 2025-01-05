@@ -28,7 +28,7 @@ function focusApp() {
     }
     mainWindow.show();
     mainWindow.focus();
-    mainWindow.webContents.send("focus-search");
+    mainWindow.webContents.send("focus-search-and-navigate");
   }
 }
 ipcMain.handle("storage:load", async () => {

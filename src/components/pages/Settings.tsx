@@ -112,23 +112,8 @@ const Settings = () => {
 
   return (
     <div className="container">
-      <div className="card settings-card">
+      <div className="settings-container">
         <h1>Settings</h1>
-        
-        <section className="settings-section">
-          <h2>Appearance</h2>
-          <div className="setting-item">
-            <label htmlFor="theme">Theme</label>
-            <select
-              id="theme"
-              value={preferences.theme}
-              onChange={(e) => handlePreferenceChange('theme', e.target.value)}
-            >
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
-            </select>
-          </div>
-        </section>
 
         <section className="settings-section">
           <h2>Shortcuts</h2>
@@ -161,22 +146,18 @@ const Settings = () => {
 
         <section className="settings-section">
           <h2>Backup & Restore</h2>
-          <div className="backup-buttons">
-            <button onClick={handleExport}>
-              Export Data
-            </button>
-            <button onClick={handleImport}>
-              Import Data
-            </button>
+          <div className="setting-item">
+            <button onClick={handleExport} className="action-button">Export Data</button>
+            <button onClick={handleImport} className="action-button">Import Data</button>
           </div>
         </section>
-
-        {message && (
-          <div className={`message ${message.type}`}>
-            {message.text}
-          </div>
-        )}
       </div>
+
+      {message && (
+        <div className={`message ${message.type}`}>
+          {message.text}
+        </div>
+      )}
     </div>
   );
 };

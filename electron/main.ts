@@ -35,8 +35,8 @@ function focusApp() {
     }
     mainWindow.show();
     mainWindow.focus();
-    // Send event to renderer to focus search
-    mainWindow.webContents.send('focus-search');
+    // Send event to renderer to focus search and navigate
+    mainWindow.webContents.send('focus-search-and-navigate');
   }
 }
 
