@@ -5,7 +5,7 @@ import { generateTOTP, getRemainingSeconds } from '../../services/totp';
 const Passwords = () => {
   const [otpEntries, setOtpEntries] = useState<OTPEntry[]>([]);
   const [codes, setCodes] = useState<{ [key: string]: string }>({});
-  const [remainingTime, setRemainingTime] = useState(30);
+  const [timeProgress, setTimeProgress] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -19,41 +19,45 @@ const Passwords = () => {
   }, []);
 
   // Generate TOTP codes and update remaining time
-  useEffect(() => {
-    const updateCodes = async () => {
-      const newCodes: { [key: string]: string } = {};
-      for (const entry of otpEntries) {
-        try {
-          newCodes[entry.id] = await generateTOTP(
-            entry.secret,
-            entry.period || 30,
-            entry.digits || 6
-          );
-        } catch (error) {
-          console.error('Error generating TOTP for entry:', entry.name, error);
-          newCodes[entry.id] = '000000';
-        }
+  const updateCodes = useCallback(async () => {
+    const newCodes: { [key: string]: string } = {};
+    for (const entry of otpEntries) {
+      try {
+        newCodes[entry.id] = await generateTOTP(
+          entry.secret,
+          entry.period || 30,
+          entry.digits || 6
+        );
+      } catch (error) {
+        console.error('Error generating TOTP for entry:', entry.name, error);
+        newCodes[entry.id] = '000000';
       }
-      setCodes(newCodes);
-      setRemainingTime(getRemainingSeconds());
-    };
+    }
+    setCodes(newCodes);
+  }, [otpEntries]);
 
-    // Initial update
+  useEffect(() => {
+    // Initial code generation
     updateCodes();
+  }, [updateCodes]);
 
-    // Update every second
-    const interval = setInterval(() => {
-      const remaining = getRemainingSeconds();
-      setRemainingTime(remaining);
+  useEffect(() => {
+    const updateProgress = () => {
+      const now = Math.floor(Date.now() / 1000);
+      const progress = now % 30;
+      setTimeProgress((30 - progress) / 30 * 100);
       
-      // Generate new codes when period resets
-      if (remaining === 30) {
+      // Update codes if we're at the start of a new period
+      if (progress === 0) {
         updateCodes();
       }
-    }, 1000);
+    };
 
-    return () => clearInterval(interval);
-  }, [otpEntries]);
+    updateProgress();
+    const timer = setInterval(updateProgress, 1000);
+
+    return () => clearInterval(timer);
+  }, [updateCodes]);
 
   const formatCode = (code: string): string => {
     return code.replace(/(\d{3})(\d{3})/, '$1 $2');
@@ -169,7 +173,15 @@ const Passwords = () => {
             />
           </div>
           <div className="timer-container">
-            <div className="timer-bar" style={{ width: `${(remainingTime / 30) * 100}%` }} />
+            <div className="progress-bar">
+              <div 
+                className="progress-fill" 
+                style={{ width: `${timeProgress}%` }}
+              />
+            </div>
+            <div className="seconds-counter">
+              {Math.ceil(timeProgress / 100 * 30)}s
+            </div>
           </div>
         </div>
         
@@ -204,18 +216,16 @@ const Passwords = () => {
               ) : (
                 <div className="password-item-content">
                   <div className="name-row">
-                    <button
-                      className={`favorite-button ${entry.isFavorite ? 'active' : ''}`}
-                      onClick={() => toggleFavorite(entry)}
-                      aria-label={entry.isFavorite ? "Remove from favorites" : "Add to favorites"}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={entry.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    </button>
-                    <h3>{entry.name}</h3>
-                    {entry.issuer && <span className="issuer">{entry.issuer}</span>}
-                    <div className="name-row-buttons">
+                    <div className="name-row-icons">
+                      <button
+                        className={`favorite-button ${entry.isFavorite ? 'active' : ''}`}
+                        onClick={() => toggleFavorite(entry)}
+                        aria-label={entry.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={entry.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      </button>
                       <button
                         className="edit-button"
                         onClick={() => startEditing(entry)}
@@ -238,6 +248,8 @@ const Passwords = () => {
                         </svg>
                       </button>
                     </div>
+                    <h3>{entry.name}</h3>
+                    {entry.issuer && <span className="issuer">{entry.issuer}</span>}
                   </div>
                   <div className="password-code-container">
                     <div className="password-code">
