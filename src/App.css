@@ -468,12 +468,46 @@ p {
   margin-top: 0.25rem;
 }
 
+.password-code-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .password-code {
   font-family: monospace;
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--primary);
   letter-spacing: 2px;
+}
+
+.copy-button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--dark-text-secondary);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--primary);
+}
+
+.copy-button.copied {
+  color: var(--success);
+  background-color: rgba(var(--success-rgb), 0.1);
+}
+
+.copy-button svg {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .no-passwords {
